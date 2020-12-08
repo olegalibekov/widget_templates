@@ -116,7 +116,17 @@ class _PlayerSliderState extends State<PlayerSlider>
                 ..._seconds,
                 SizedBox(width: wholeWidgetWidth / 2 - 40)
               ])),
-      CustomPaint(painter: PlayerSliderCanvas())
+      Container(
+          // color: Colors.teal,
+          height: 60,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Align(
+                alignment: Alignment.center,
+                child: CustomPaint(
+                    size: Size(wholeWidgetWidth, wholeWidgetHeight),
+                    painter: PlayerSliderLineCanvas())),
+          ))
     ]);
   }
 }
