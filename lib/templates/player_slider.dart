@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:widget_templates/templates/player_slider_canvas.dart';
+import 'package:widget_templates/templates/player_handle_canvas.dart';
+import 'package:widget_templates/templates/player_line_canvas.dart';
 import 'package:widget_templates/templates/widget_player.dart';
 import 'dart:async';
 
@@ -26,6 +29,15 @@ class _PlayerSliderState extends State<PlayerSlider>
   double _valueBeforeScrolling;
   List<Widget> _seconds = [];
   Timer _timer;
+
+  final double _handleHeight = 100.0;
+  final double _handleMiddlePadding = 5.0;
+  final double _handleDefaultWidth = 8.0;
+  double _handleMiddleWidth = 8.0;
+  double _handleMiddleHeight = 100.0 / 3;
+  double _handleEdgeLinesWidth = 2.0;
+
+  BorderRadiusGeometry _handleBorderRadius = BorderRadius.circular(12);
 
   @override
   void initState() {
@@ -82,7 +94,6 @@ class _PlayerSliderState extends State<PlayerSlider>
               setState(() => _currentSliderValue = _animation.value);
             });
 
-            // print(_scrollController.position.scrol);
             _scrollController.jumpTo(
                 _timeLinePosition * _scrollController.position.maxScrollExtent);
           },
@@ -105,28 +116,76 @@ class _PlayerSliderState extends State<PlayerSlider>
             }
           }),
       Container(
-          height: wholeWidgetHeight * 0.237,
-          width: double.infinity,
-          child: ListView(
-              controller: _scrollController,
-              scrollDirection: Axis.horizontal,
-              physics: NeverScrollableScrollPhysics(),
-              children: <Widget>[
-                SizedBox(width: wholeWidgetWidth / 2 - 25),
-                ..._seconds,
-                SizedBox(width: wholeWidgetWidth / 2 - 40)
-              ])),
-      Container(
-          // color: Colors.teal,
-          height: 60,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Align(
-                alignment: Alignment.center,
-                child: CustomPaint(
-                    size: Size(wholeWidgetWidth, wholeWidgetHeight),
-                    painter: PlayerSliderLineCanvas())),
-          ))
+          color: Colors.teal,
+          height: _handleHeight + _handleMiddlePadding,
+          width: wholeWidgetWidth,
+          child: Stack(children: [
+            // Positioned(
+            //     top: (_handleHeight + _handleMiddlePadding) / 2,
+            //     child: Container(
+            //         color: Colors.blue,
+            //         child: Column(
+            //             children: [CustomPaint(painter: PlayerLineCanvas())]))),
+            ListView(
+                controller: _scrollController,
+                scrollDirection: Axis.horizontal,
+                physics: NeverScrollableScrollPhysics(),
+                children: <Widget>[
+                  // SizedBox(width: wholeWidgetWidth / 2 - 25),
+                  Container(
+                      color: Colors.blue,
+                      child: Column(
+                          // mainAxisSize: MainAxisSize.max,
+                          children: [
+                            SizedBox(
+                                width: 100,
+                                height: 20,
+                                child: CustomPaint(
+                                    size: Size(100, 20),
+                                    painter: PlayerLineCanvas())),
+                            // Row(children: [..._seconds])
+                          ])),
+                  SizedBox(width: wholeWidgetWidth / 2 - 40)
+                ])
+            // SizedBox(
+            //     height: _handleHeight + _handleMiddlePadding,
+            //     child: GestureDetector(
+            //         onPanUpdate: (details) {
+            //           setState(() {
+            //             _handleMiddleHeight =
+            //                 _handleHeight / 3 + _handleMiddlePadding;
+            //             _handleMiddleWidth = _handleEdgeLinesWidth;
+            //             _handleBorderRadius = BorderRadius.circular(0.0);
+            //           });
+            //         },
+            //         onPanEnd: (details) {
+            //           setState(() {
+            //             _handleMiddleHeight = _handleHeight / 3;
+            //             _handleMiddleWidth = _handleDefaultWidth;
+            //             _handleBorderRadius = BorderRadius.circular(12.0);
+            //           });
+            //         },
+            //         child: Column(children: [
+            //           Container(
+            //               width: _handleEdgeLinesWidth,
+            //               height: _handleHeight / 3,
+            //               color: Colors.white),
+            //           Spacer(),
+            //           AnimatedContainer(
+            //               width: _handleMiddleWidth,
+            //               height: _handleMiddleHeight,
+            //               decoration: BoxDecoration(
+            //                   color: Colors.white,
+            //                   borderRadius: _handleBorderRadius),
+            //               duration: Duration(milliseconds: 300),
+            //               curve: Curves.fastOutSlowIn),
+            //           Spacer(),
+            //           Container(
+            //               width: _handleEdgeLinesWidth,
+            //               height: _handleHeight / 3,
+            //               color: Colors.white)
+            //         ])))
+          ]))
     ]);
   }
 }

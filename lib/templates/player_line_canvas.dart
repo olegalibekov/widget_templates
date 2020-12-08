@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class PlayerSliderLineCanvas extends CustomPainter {
+class PlayerLineCanvas extends CustomPainter {
   final double _lineLength = 100.0;
   final double _maxLineHeight = 16;
   final double _thickness = 2.5;
