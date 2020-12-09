@@ -1,9 +1,6 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:widget_templates/templates/player_handle_canvas.dart';
 import 'package:widget_templates/templates/player_line_canvas.dart';
-import 'package:widget_templates/templates/widget_player.dart';
+import 'package:widget_templates/templates/player_widget.dart';
 import 'dart:async';
 
 class PlayerSlider extends StatefulWidget {
@@ -72,120 +69,113 @@ class _PlayerSliderState extends State<PlayerSlider>
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      Slider(
-          value: _currentSliderValue,
-          min: -_sideSliderValue,
-          max: _sideSliderValue,
-          onChangeStart: (double value) {
-            _tapOn.value = true;
-            _valueBeforeScrolling = value;
-          },
-          onChangeEnd: (double value) {
-            _tapOn.value = false;
-            _velocityValue = 0.0;
-
-            Tween<double> _tween = Tween(begin: _currentSliderValue, end: 0.0);
-            _animation = _tween.animate(_curvedAnimation);
-            _animationController
-              ..reset()
-              ..forward();
-            _animationController.addListener(() {
-              setState(() => _currentSliderValue = _animation.value);
-            });
-
-            _scrollController.jumpTo(
-                _timeLinePosition * _scrollController.position.maxScrollExtent);
-          },
-          onChanged: (double value) {
-            setState(() => _currentSliderValue = value);
-            double _valueDifference =
-                -(_valueBeforeScrolling - _currentSliderValue);
-
-            double _futureVelocityValue =
-                (_currentSliderValue.abs() - _sideSliderBound) /
-                    (_sideSliderValue - _sideSliderBound) *
-                    _maxVelocity;
-
-            if (_valueDifference >= _sideSliderBound) {
-              _velocityValue = _futureVelocityValue;
-            } else if (_valueDifference <= -_sideSliderBound) {
-              _velocityValue = -_futureVelocityValue;
-            } else {
-              _velocityValue = 0.0;
-            }
-          }),
-      Container(
-          color: Colors.teal,
-          height: _handleHeight + _handleMiddlePadding,
-          width: wholeWidgetWidth,
-          child: Stack(children: [
-            // Positioned(
-            //     top: (_handleHeight + _handleMiddlePadding) / 2,
-            //     child: Container(
-            //         color: Colors.blue,
-            //         child: Column(
-            //             children: [CustomPaint(painter: PlayerLineCanvas())]))),
-            ListView(
-                controller: _scrollController,
-                scrollDirection: Axis.horizontal,
-                physics: NeverScrollableScrollPhysics(),
-                children: <Widget>[
-                  // SizedBox(width: wholeWidgetWidth / 2 - 25),
-                  Container(
-                      color: Colors.blue,
-                      child: Column(
-                          // mainAxisSize: MainAxisSize.max,
-                          children: [
-                            SizedBox(
-                                width: 100,
-                                height: 20,
-                                child: CustomPaint(
-                                    size: Size(100, 20),
-                                    painter: PlayerLineCanvas())),
-                            // Row(children: [..._seconds])
+    return Expanded(
+        child: Center(
+            child: Container(
+                color: Colors.teal,
+                height: _handleHeight + _handleMiddlePadding,
+                width: wholeWidgetWidth,
+                child: Stack(children: [
+                  Positioned(
+                      top: (_handleHeight + _handleMiddlePadding) / 2 + 15,
+                      child: Container(
+                          // color: Colors.red,
+                          height: 20,
+                          child: ListView(
+                              controller: _scrollController,
+                              scrollDirection: Axis.horizontal,
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              children: <Widget>[
+                                SizedBox(width: wholeWidgetWidth / 2 - 25),
+                                ..._seconds,
+                                SizedBox(width: wholeWidgetWidth / 2 - 40)
+                              ]))),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Draggable(
+                      child: GestureDetector(
+                          onPanUpdate: (details) {
+                            setState(() {
+                              _handleMiddleHeight =
+                                  _handleHeight / 3 + _handleMiddlePadding;
+                              _handleMiddleWidth = _handleEdgeLinesWidth;
+                              _handleBorderRadius = BorderRadius.circular(0.0);
+                            });
+                          },
+                          onPanEnd: (details) {
+                            setState(() {
+                              _handleMiddleHeight = _handleHeight / 3;
+                              _handleMiddleWidth = _handleDefaultWidth;
+                              _handleBorderRadius = BorderRadius.circular(12.0);
+                            });
+                          },
+                          child: Column(children: [
+                            Container(
+                                width: _handleEdgeLinesWidth,
+                                height: _handleHeight / 3,
+                                color: Colors.white),
+                            Spacer(),
+                            AnimatedContainer(
+                                width: _handleMiddleWidth,
+                                height: _handleMiddleHeight,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: _handleBorderRadius),
+                                duration: Duration(milliseconds: 300),
+                                curve: Curves.fastOutSlowIn),
+                            Spacer(),
+                            Container(
+                                width: _handleEdgeLinesWidth,
+                                height: _handleHeight / 3,
+                                color: Colors.white)
                           ])),
-                  SizedBox(width: wholeWidgetWidth / 2 - 40)
-                ])
-            // SizedBox(
-            //     height: _handleHeight + _handleMiddlePadding,
-            //     child: GestureDetector(
-            //         onPanUpdate: (details) {
-            //           setState(() {
-            //             _handleMiddleHeight =
-            //                 _handleHeight / 3 + _handleMiddlePadding;
-            //             _handleMiddleWidth = _handleEdgeLinesWidth;
-            //             _handleBorderRadius = BorderRadius.circular(0.0);
-            //           });
-            //         },
-            //         onPanEnd: (details) {
-            //           setState(() {
-            //             _handleMiddleHeight = _handleHeight / 3;
-            //             _handleMiddleWidth = _handleDefaultWidth;
-            //             _handleBorderRadius = BorderRadius.circular(12.0);
-            //           });
-            //         },
-            //         child: Column(children: [
-            //           Container(
-            //               width: _handleEdgeLinesWidth,
-            //               height: _handleHeight / 3,
-            //               color: Colors.white),
-            //           Spacer(),
-            //           AnimatedContainer(
-            //               width: _handleMiddleWidth,
-            //               height: _handleMiddleHeight,
-            //               decoration: BoxDecoration(
-            //                   color: Colors.white,
-            //                   borderRadius: _handleBorderRadius),
-            //               duration: Duration(milliseconds: 300),
-            //               curve: Curves.fastOutSlowIn),
-            //           Spacer(),
-            //           Container(
-            //               width: _handleEdgeLinesWidth,
-            //               height: _handleHeight / 3,
-            //               color: Colors.white)
-            //         ])))
-          ]))
-    ]);
+                    ),
+                  ),
+                  // Slider(
+                  //     value: _currentSliderValue,
+                  //     min: -_sideSliderValue,
+                  //     max: _sideSliderValue,
+                  //     onChangeStart: (double value) {
+                  //       _tapOn.value = true;
+                  //       _valueBeforeScrolling = value;
+                  //     },
+                  //     onChangeEnd: (double value) {
+                  //       _tapOn.value = false;
+                  //       _velocityValue = 0.0;
+                  //
+                  //       Tween<double> _tween =
+                  //           Tween(begin: _currentSliderValue, end: 0.0);
+                  //       _animation = _tween.animate(_curvedAnimation);
+                  //       _animationController
+                  //         ..reset()
+                  //         ..forward();
+                  //       _animationController.addListener(() {
+                  //         setState(
+                  //             () => _currentSliderValue = _animation.value);
+                  //       });
+                  //
+                  //       _scrollController.jumpTo(_timeLinePosition *
+                  //           _scrollController.position.maxScrollExtent);
+                  //     },
+                  //     onChanged: (double value) {
+                  //       setState(() => _currentSliderValue = value);
+                  //       double _valueDifference =
+                  //           -(_valueBeforeScrolling - _currentSliderValue);
+                  //
+                  //       double _futureVelocityValue =
+                  //           (_currentSliderValue.abs() - _sideSliderBound) /
+                  //               (_sideSliderValue - _sideSliderBound) *
+                  //               _maxVelocity;
+                  //
+                  //       if (_valueDifference >= _sideSliderBound) {
+                  //         _velocityValue = _futureVelocityValue;
+                  //       } else if (_valueDifference <= -_sideSliderBound) {
+                  //         _velocityValue = -_futureVelocityValue;
+                  //       } else {
+                  //         _velocityValue = 0.0;
+                  //       }
+                  //     })
+                ]))));
   }
 }

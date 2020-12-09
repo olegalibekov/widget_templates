@@ -18,7 +18,7 @@ class PlayerLineCanvas extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    for (int lineNumber = 0; lineNumber < 2; lineNumber++) {
+    for (int lineNumber = 0; lineNumber < 1; lineNumber++) {
       createOneLine(canvas, _lineLength * lineNumber);
     }
   }

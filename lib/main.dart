@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:widget_templates/tests/test_drag_and_drop.dart';
 
-import 'templates/widget_player.dart';
+import 'templates/player_widget.dart';
 
 void main() {
   runApp(MyApp());
