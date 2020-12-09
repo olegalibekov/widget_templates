@@ -55,44 +55,46 @@ class _TestDragAndDropState extends State<TestDragAndDrop> {
                   Align(
                       alignment: Alignment.bottomRight,
                       child: dragAndDrop.DragTargetInterlayer<List>(
-                          child: Container(
-                            width: 200,
-                            height: 200,
-                            color: Colors.blue,
-                          ),
-                          onWillAccept: (d) {
-                            return true;
-                          },
-                          onAccept: (d) => print("ACCEPT 2!"),
-                          onLeave: (d) => print("LEAVE 2!"),
-                          // builder: (context, candidateData, rejectedData) {
-                          //   return Container(
-                          //       width: 150, height: 150, color: Colors.purple);
-                          // }
-                          )),
+                        child: Container(
+                          width: 200,
+                          height: 200,
+                          color: Colors.blue,
+                        ),
+                        onWillAccept: (d) {
+                          return true;
+                        },
+                        onAccept: (d) => print("ACCEPT 2!"),
+                        onLeave: (d) => print("LEAVE 2!"),
+                        // builder: (context, candidateData, rejectedData) {
+                        //   return Container(
+                        //       width: 150, height: 150, color: Colors.purple);
+                        // }
+                      )),
 
                   Align(
-                    alignment: Alignment.topRight,
-                    child: dragAndDrop.Draggable<List>(
-                        data: ["SOME DATA"],
-                        onDragStarted: () => print("DRAG START!"),
-                        onDragCompleted: () => print("DRAG COMPLETED!"),
-                        onDragEnd: (details) => print("DRAG ENDED!"),
-                        onDraggableCanceled: (data, data2) =>
-                            print("DRAG CANCELLED!"),
-                        feedback: SizedBox(
-                            width: 100,
-                            height: 100,
-                            child: Container(
-                                margin: EdgeInsets.all(10),
-                                color: Colors.green[800])),
-                        child: SizedBox(
-                            width: 100,
-                            height: 100,
-                            child: Container(
-                                margin: EdgeInsets.all(10),
-                                color: Colors.blue[800]))),
-                  )
+                      alignment: Alignment.topRight,
+                      child: dragAndDrop.Draggable<List>(
+                          data: ["SOME DATA"],
+                          onDragUpdate: (position) {
+                            print('position');
+                          },
+                          onDragStarted: (position) => print("DRAG START!"),
+                          onDragCompleted: () => print("DRAG COMPLETED!"),
+                          onDragEnd: (details) => print("DRAG ENDED!"),
+                          onDraggableCanceled: (data, data2) =>
+                              print("DRAG CANCELLED!"),
+                          feedback: SizedBox(
+                              width: 100,
+                              height: 100,
+                              child: Container(
+                                  margin: EdgeInsets.all(10),
+                                  color: Colors.green[800])),
+                          child: SizedBox(
+                              width: 100,
+                              height: 100,
+                              child: Container(
+                                  margin: EdgeInsets.all(10),
+                                  color: Colors.blue[800]))))
                 ]))));
   }
 }

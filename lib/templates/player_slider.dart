@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:widget_templates/templates/player_line_canvas.dart';
+
 import 'package:widget_templates/templates/player_widget.dart';
+import 'package:widget_templates/modified_flutter_widgets/drag_and_drop.dart'
+    as dragAndDrop;
 import 'dart:async';
 
 class PlayerSlider extends StatefulWidget {
@@ -33,11 +35,21 @@ class _PlayerSliderState extends State<PlayerSlider>
   double _handleMiddleWidth = 8.0;
   double _handleMiddleHeight = 100.0 / 3;
   double _handleEdgeLinesWidth = 2.0;
-
   BorderRadiusGeometry _handleBorderRadius = BorderRadius.circular(12);
+
+  bool _isScrolling = false;
+
+  HandleWidget _handleWidget = HandleWidget();
 
   @override
   void initState() {
+    _handleWidget
+      ..handleHeight = _handleHeight
+      ..handleMiddleWidth = _handleMiddleWidth
+      ..handleMiddleHeight = _handleMiddleHeight
+      ..handleEdgeLinesWidth = _handleEdgeLinesWidth
+      ..handleBorderRadius = _handleBorderRadius;
+
     _animationController =
         AnimationController(duration: Duration(milliseconds: 300), vsync: this);
     _curvedAnimation = CurvedAnimation(
@@ -72,14 +84,15 @@ class _PlayerSliderState extends State<PlayerSlider>
     return Expanded(
         child: Center(
             child: Container(
-                color: Colors.teal,
+                // color: Colors.teal,
                 height: _handleHeight + _handleMiddlePadding,
-                width: wholeWidgetWidth,
                 child: Stack(children: [
                   Positioned(
                       top: (_handleHeight + _handleMiddlePadding) / 2 + 15,
                       child: Container(
                           // color: Colors.red,
+                          // width: double.infinity,
+                          width: wholeWidgetWidth,
                           height: 20,
                           child: ListView(
                               controller: _scrollController,
@@ -92,90 +105,258 @@ class _PlayerSliderState extends State<PlayerSlider>
                                 SizedBox(width: wholeWidgetWidth / 2 - 40)
                               ]))),
                   Align(
-                    alignment: Alignment.center,
-                    child: Draggable(
-                      child: GestureDetector(
-                          onPanUpdate: (details) {
-                            setState(() {
-                              _handleMiddleHeight =
-                                  _handleHeight / 3 + _handleMiddlePadding;
-                              _handleMiddleWidth = _handleEdgeLinesWidth;
-                              _handleBorderRadius = BorderRadius.circular(0.0);
-                            });
-                          },
-                          onPanEnd: (details) {
-                            setState(() {
-                              _handleMiddleHeight = _handleHeight / 3;
-                              _handleMiddleWidth = _handleDefaultWidth;
-                              _handleBorderRadius = BorderRadius.circular(12.0);
-                            });
-                          },
-                          child: Column(children: [
-                            Container(
-                                width: _handleEdgeLinesWidth,
-                                height: _handleHeight / 3,
-                                color: Colors.white),
-                            Spacer(),
-                            AnimatedContainer(
-                                width: _handleMiddleWidth,
-                                height: _handleMiddleHeight,
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: _handleBorderRadius),
-                                duration: Duration(milliseconds: 300),
-                                curve: Curves.fastOutSlowIn),
-                            Spacer(),
-                            Container(
-                                width: _handleEdgeLinesWidth,
-                                height: _handleHeight / 3,
-                                color: Colors.white)
-                          ])),
-                    ),
-                  ),
-                  // Slider(
-                  //     value: _currentSliderValue,
-                  //     min: -_sideSliderValue,
-                  //     max: _sideSliderValue,
-                  //     onChangeStart: (double value) {
-                  //       _tapOn.value = true;
-                  //       _valueBeforeScrolling = value;
-                  //     },
-                  //     onChangeEnd: (double value) {
-                  //       _tapOn.value = false;
-                  //       _velocityValue = 0.0;
-                  //
-                  //       Tween<double> _tween =
-                  //           Tween(begin: _currentSliderValue, end: 0.0);
-                  //       _animation = _tween.animate(_curvedAnimation);
-                  //       _animationController
-                  //         ..reset()
-                  //         ..forward();
-                  //       _animationController.addListener(() {
-                  //         setState(
-                  //             () => _currentSliderValue = _animation.value);
-                  //       });
-                  //
-                  //       _scrollController.jumpTo(_timeLinePosition *
-                  //           _scrollController.position.maxScrollExtent);
-                  //     },
-                  //     onChanged: (double value) {
-                  //       setState(() => _currentSliderValue = value);
-                  //       double _valueDifference =
-                  //           -(_valueBeforeScrolling - _currentSliderValue);
-                  //
-                  //       double _futureVelocityValue =
-                  //           (_currentSliderValue.abs() - _sideSliderBound) /
-                  //               (_sideSliderValue - _sideSliderBound) *
-                  //               _maxVelocity;
-                  //
-                  //       if (_valueDifference >= _sideSliderBound) {
-                  //         _velocityValue = _futureVelocityValue;
-                  //       } else if (_valueDifference <= -_sideSliderBound) {
-                  //         _velocityValue = -_futureVelocityValue;
-                  //       } else {
-                  //         _velocityValue = 0.0;
-                  //       }
-                  //     })
+                      alignment: Alignment.center,
+                      child: Container(
+                          // color: Colors.pink,
+                          child: dragAndDrop.Draggable<List>(
+                              axis: Axis.horizontal,
+                              data: ["SOME DATA"],
+                              onDragStarted: (position) {
+                                _tapOn.value = true;
+                                _valueBeforeScrolling = 0.0;
+
+                                setState(() {
+                                  _handleMiddleHeight =
+                                      _handleHeight / 3 + _handleMiddlePadding;
+                                  _handleMiddleWidth = _handleEdgeLinesWidth;
+                                  _handleBorderRadius =
+                                      BorderRadius.circular(0.0);
+
+                                  _isScrolling = true;
+                                });
+
+                                _handleWidget
+                                  ..handleHeight = _handleHeight
+                                  ..handleMiddleWidth = _handleMiddleWidth
+                                  ..handleMiddleHeight = _handleMiddleHeight
+                                  ..handleEdgeLinesWidth = _handleEdgeLinesWidth
+                                  ..handleBorderRadius = _handleBorderRadius;
+                              },
+                              onDragEnd: (details) {
+                                _tapOn.value = false;
+                                _velocityValue = 0.0;
+
+                                setState(() {
+                                  _handleMiddleHeight = _handleHeight / 3;
+                                  _handleMiddleWidth = _handleDefaultWidth;
+                                  _handleBorderRadius =
+                                      BorderRadius.circular(12.0);
+
+                                  _isScrolling = false;
+                                });
+
+                                _handleWidget
+                                  ..handleHeight = _handleHeight
+                                  ..handleMiddleWidth = _handleMiddleWidth
+                                  ..handleMiddleHeight = _handleMiddleHeight
+                                  ..handleEdgeLinesWidth = _handleEdgeLinesWidth
+                                  ..handleBorderRadius = _handleBorderRadius;
+                              },
+                              onDragUpdate: (position) {
+                                double _sliderMiddlePosition =
+                                    (wholeWidgetWidth) / 2;
+                                double lengthToBoundFromCenter =
+                                    _sliderMiddlePosition * 0.92;
+                                _currentSliderValue = position.dx /
+                                        (_sliderMiddlePosition +
+                                            lengthToBoundFromCenter) -
+                                    0.5;
+
+                                double _valueDifference =
+                                    -(_valueBeforeScrolling -
+                                        _currentSliderValue);
+
+                                double _futureVelocityValue =
+                                    (_currentSliderValue.abs() -
+                                            _sideSliderBound) /
+                                        (_sideSliderValue - _sideSliderBound) *
+                                        _maxVelocity;
+
+                                if (_valueDifference >= _sideSliderBound) {
+                                  _velocityValue = _futureVelocityValue;
+                                } else if (_valueDifference <=
+                                    -_sideSliderBound) {
+                                  _velocityValue = -_futureVelocityValue;
+                                } else {
+                                  _velocityValue = 0.0;
+                                }
+                              },
+                              feedback: SizedBox(
+                                  height: _handleHeight + _handleMiddlePadding,
+                                  child: _isScrolling
+                                      ? Container()
+                                      : _handleWidget),
+                              child:
+                                  _isScrolling ? Container() : _handleWidget))),
                 ]))));
   }
+
+  final double _lineLength = 100.0;
+  final double _maxLineHeight = 16.0;
+  final double _thickness = 2.5;
+
+  double get _minLineHeight => _maxLineHeight / 2;
+
+  double get _thicknessPadding => _thickness / 2;
+
+  final _trackColor = Colors.white;
+
+  Widget trackPart() {
+    return Container(
+        color: Colors.orange,
+        height: _maxLineHeight,
+        width: _lineLength,
+        child: Stack(children: [
+          Positioned(
+              left: _thickness / 2,
+              child: Container(
+                  color: _trackColor,
+                  width: _thickness,
+                  height: _maxLineHeight)),
+          Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                  color: Colors.white,
+                  width: _lineLength / 10,
+                  height: _thickness))
+        ]));
+  }
 }
+
+// ignore: must_be_immutable
+class HandleWidget extends StatefulWidget {
+  double handleHeight;
+  double handleMiddleWidth;
+  double handleMiddleHeight;
+  double handleEdgeLinesWidth;
+  BorderRadius handleBorderRadius;
+
+  @override
+  _HandleWidgetState createState() => _HandleWidgetState();
+}
+
+class _HandleWidgetState extends State<HandleWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: [
+      Container(
+          width: widget.handleEdgeLinesWidth,
+          height: widget.handleHeight / 3,
+          color: Colors.white),
+      Spacer(),
+      AnimatedContainer(
+          width: widget.handleMiddleWidth,
+          height: widget.handleMiddleHeight,
+          decoration: BoxDecoration(
+              color: Colors.white, borderRadius: widget.handleBorderRadius),
+          duration: Duration(milliseconds: 300),
+          curve: Curves.fastOutSlowIn),
+      Spacer(),
+      Container(
+          width: widget.handleEdgeLinesWidth,
+          height: widget.handleHeight / 3,
+          color: Colors.white)
+    ]);
+  }
+}
+// Slider(
+//     value: _currentSliderValue,
+//     min: -_sideSliderValue,
+//     max: _sideSliderValue,
+//     onChangeStart: (double value) {
+//       _tapOn.value = true;
+//       _valueBeforeScrolling = value;
+//     },
+//     onChangeEnd: (double value) {
+//       _tapOn.value = false;
+//       _velocityValue = 0.0;
+//
+//       Tween<double> _tween =
+//           Tween(begin: _currentSliderValue, end: 0.0);
+//       _animation = _tween.animate(_curvedAnimation);
+//       _animationController
+//         ..reset()
+//         ..forward();
+//       _animationController.addListener(() {
+//         setState(
+//             () => _currentSliderValue = _animation.value);
+//       });
+//
+//       _scrollController.jumpTo(_timeLinePosition *
+//           _scrollController.position.maxScrollExtent);
+//     },
+//     onChanged: (double value) {
+//       setState(() => _currentSliderValue = value);
+//       double _valueDifference =
+//           -(_valueBeforeScrolling - _currentSliderValue);
+//
+//       double _futureVelocityValue =
+//           (_currentSliderValue.abs() - _sideSliderBound) /
+//               (_sideSliderValue - _sideSliderBound) *
+//               _maxVelocity;
+//
+//       if (_valueDifference >= _sideSliderBound) {
+//         _velocityValue = _futureVelocityValue;
+//       } else if (_valueDifference <= -_sideSliderBound) {
+//         _velocityValue = -_futureVelocityValue;
+//       } else {
+//         _velocityValue = 0.0;
+//       }
+//     })
+// trackPart()
+
+// Widget handleWidget() {
+//   return Column(children: [
+//     Container(
+//         width: _handleEdgeLinesWidth,
+//         height: _handleHeight / 3,
+//         color: Colors.white),
+//     Spacer(),
+//     AnimatedContainer(
+//         width: _handleMiddleWidth,
+//         height: _handleMiddleHeight,
+//         decoration: BoxDecoration(
+//             color: Colors.white, borderRadius: _handleBorderRadius),
+//         duration: Duration(milliseconds: 300),
+//         curve: Curves.fastOutSlowIn),
+//     Spacer(),
+//     Container(
+//         width: _handleEdgeLinesWidth,
+//         height: _handleHeight / 3,
+//         color: Colors.white)
+//   ]);
+//   return GestureDetector(
+//       onPanUpdate: (details) {
+//         setState(() {
+//           _handleMiddleHeight = _handleHeight / 3 + _handleMiddlePadding;
+//           _handleMiddleWidth = _handleEdgeLinesWidth;
+//           _handleBorderRadius = BorderRadius.circular(0.0);
+//         });
+//       },
+//       onPanEnd: (details) {
+//         setState(() {
+//           _handleMiddleHeight = _handleHeight / 3;
+//           _handleMiddleWidth = _handleDefaultWidth;
+//           _handleBorderRadius = BorderRadius.circular(12.0);
+//         });
+//       },
+//       child: Column(children: [
+//         Container(
+//             width: _handleEdgeLinesWidth,
+//             height: _handleHeight / 3,
+//             color: Colors.white),
+//         Spacer(),
+//         AnimatedContainer(
+//             width: _handleMiddleWidth,
+//             height: _handleMiddleHeight,
+//             decoration: BoxDecoration(
+//                 color: Colors.white, borderRadius: _handleBorderRadius),
+//             duration: Duration(milliseconds: 300),
+//             curve: Curves.fastOutSlowIn),
+//         Spacer(),
+//         Container(
+//             width: _handleEdgeLinesWidth,
+//             height: _handleHeight / 3,
+//             color: Colors.white)
+//       ]));
+// }

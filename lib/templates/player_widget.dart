@@ -7,11 +7,11 @@ class PlayerWidget extends StatefulWidget {
   _PlayerWidgetState createState() => _PlayerWidgetState();
 }
 
-var wholeWidgetHeight;
-var wholeWidgetWidth;
+double wholeWidgetHeight;
+double wholeWidgetWidth;
+const double contentPadding = 16.0;
 
 class _PlayerWidgetState extends State<PlayerWidget> {
-  static const double contentPadding = 16.0;
   static const Color darkBackground = Color.fromRGBO(18, 18, 18, 1);
 
   @override
