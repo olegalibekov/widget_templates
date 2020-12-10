@@ -1,8 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:widget_templates/templates/player_widget.dart';
 import 'package:widget_templates/modified_flutter_widgets/drag_and_drop.dart'
     as dragAndDrop;
+import 'package:scroll_to_index/scroll_to_index.dart';
 import 'dart:async';
 
 class PlayerSlider extends StatefulWidget {
@@ -87,30 +89,29 @@ class _PlayerSliderState extends State<PlayerSlider>
                 // color: Colors.teal,
                 height: _handleHeight + _handleMiddlePadding,
                 child: Stack(children: [
-                  Positioned(
-                      top: (_handleHeight + _handleMiddlePadding) / 2 + 15,
-                      child: Container(
-                          // color: Colors.red,
-                          // width: double.infinity,
-                          width: wholeWidgetWidth,
-                          height: 20,
-                          child: ListView(
-                              controller: _scrollController,
-                              scrollDirection: Axis.horizontal,
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              children: <Widget>[
-                                SizedBox(width: wholeWidgetWidth / 2 - 25),
-                                ..._seconds,
-                                SizedBox(width: wholeWidgetWidth / 2 - 40)
-                              ]))),
+                  Container(
+                      // color: Colors.red,
+                      // width: double.infinity,
+                      width: wholeWidgetWidth,
+                      height: _handleHeight + _handleMiddlePadding,
+                      child: ListView(
+                          controller: _scrollController,
+                          scrollDirection: Axis.horizontal,
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          children: <Widget>[
+                            SizedBox(width: wholeWidgetWidth / 2 - 25),
+                            // ..._seconds,
+                            DragTargetTrack(100),
+                            SizedBox(width: wholeWidgetWidth / 2 - 40)
+                          ])),
                   Align(
                       alignment: Alignment.center,
                       child: Container(
                           // color: Colors.pink,
                           child: dragAndDrop.Draggable<List>(
                               axis: Axis.horizontal,
-                              data: ["SOME DATA"],
+                              data: ["data"],
                               onDragStarted: (position) {
                                 _tapOn.value = true;
                                 _valueBeforeScrolling = 0.0;
@@ -201,25 +202,85 @@ class _PlayerSliderState extends State<PlayerSlider>
 
   final _trackColor = Colors.white;
 
-  Widget trackPart() {
-    return Container(
-        color: Colors.orange,
-        height: _maxLineHeight,
-        width: _lineLength,
-        child: Stack(children: [
-          Positioned(
-              left: _thickness / 2,
-              child: Container(
-                  color: _trackColor,
-                  width: _thickness,
-                  height: _maxLineHeight)),
-          Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                  color: Colors.white,
-                  width: _lineLength / 10,
-                  height: _thickness))
-        ]));
+// Widget trackPart() {
+//   return Container(
+//       color: Colors.orange,
+//       height: _maxLineHeight,
+//       width: _lineLength,
+//       child: Stack(children: [
+//         Positioned(
+//             left: _thickness / 2,
+//             child: Container(
+//                 color: _trackColor,
+//                 width: _thickness,
+//                 height: _maxLineHeight)),
+//         Align(
+//             alignment: Alignment.bottomCenter,
+//             child: Container(
+//                 color: Colors.white,
+//                 width: _lineLength / 10,
+//                 height: _thickness))
+//       ]));
+// }
+}
+
+class DragTargetTrack extends StatefulWidget {
+  final double divisionNumber;
+
+  const DragTargetTrack(this.divisionNumber, {Key key}) : super(key: key);
+
+  @override
+  _DragTargetTrackState createState() => _DragTargetTrackState();
+}
+
+class _DragTargetTrackState extends State<DragTargetTrack> {
+  // final double _handleHeight = 100.0;
+  // final double _handleMiddlePadding = 5.0;
+
+  final double _maxLineHeight = 50.0;
+  final double _thickness = 5.0;
+  final double _divisionLength = 30.0;
+
+  double get _minLineHeight => _maxLineHeight / 2;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(children: [
+      for (int division = 0; division <= widget.divisionNumber; division++)
+        dragAndDrop.DragTargetInterlayer<List>(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                      // color: Colors.yellow,
+                      height: _maxLineHeight,
+                      child: Stack(children: [
+                        Align(
+                            alignment: Alignment.bottomLeft,
+                            child: Container(
+                                width: _thickness,
+                                height: division % 10 == 0
+                                    ? _maxLineHeight
+                                    : _minLineHeight,
+                                color: Colors.orange)),
+                        Align(
+                            alignment: Alignment.bottomLeft,
+                            child: Container(
+                                width: _divisionLength,
+                                height: _thickness,
+                                color: Colors.orange))
+                      ])),
+                  Text(division.toString(),
+                      style: TextStyle(color: Colors.white))
+                ]),
+            onWillAccept: (d) {
+              print(division);
+              return true;
+            },
+            onAccept: (d) => print("accept "),
+            onLeave: (d) => print("leave"))
+    ]);
   }
 }
 

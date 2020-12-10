@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class PlayerLineCanvas extends CustomPainter {
   final double _lineLength = 100.0;
-  final double _maxLineHeight = 16;
+  final double _maxLineHeight = 16.0;
   final double _thickness = 2.5;
 
   double get _minLineHeight => _maxLineHeight / 2;

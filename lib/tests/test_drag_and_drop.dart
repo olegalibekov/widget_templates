@@ -61,6 +61,7 @@ class _TestDragAndDropState extends State<TestDragAndDrop> {
                           color: Colors.blue,
                         ),
                         onWillAccept: (d) {
+                          print(d);
                           return true;
                         },
                         onAccept: (d) => print("ACCEPT 2!"),
