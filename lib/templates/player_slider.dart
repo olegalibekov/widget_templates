@@ -16,7 +16,7 @@ class _PlayerSliderState extends State<PlayerSlider>
     with TickerProviderStateMixin {
   final double _sideSliderValue = 0.5;
   final double _sideSliderBound = 0.48;
-  final double _maxVelocity = 0.001;
+  final double _maxVelocity = 0.01;
 
   AnimationController _animationController;
   CurvedAnimation _curvedAnimation;
@@ -31,11 +31,12 @@ class _PlayerSliderState extends State<PlayerSlider>
   List<Widget> _seconds = [];
   Timer _timer;
 
-  final double _handleHeight = 100.0;
-  final double _handleMiddlePadding = 5.0;
-  final double _handleDefaultWidth = 8.0;
-  double _handleMiddleWidth = 8.0;
-  double _handleMiddleHeight = 100.0 / 3;
+  final double _handleHeight = 70.0;
+  final double _handleMiddlePadding = 4.0;
+  final double _handleDefaultWidth = 6.0;
+  double _handleMiddleHorizontalPadding = 0.0;
+  double _handleMiddleWidth = 6.0;
+  double _handleMiddleHeight = 70.0 / 3;
   double _handleEdgeLinesWidth = 2.0;
   BorderRadiusGeometry _handleBorderRadius = BorderRadius.circular(12);
 
@@ -45,8 +46,18 @@ class _PlayerSliderState extends State<PlayerSlider>
 
   AutoScrollController _autoScrollController;
 
+  // StreamController<int> _currentDivision = StreamController<int>();
+  int _divisionBefore = 0;
+  int _currentDivision = 0;
+  double _futureTimeLinePosition;
+
+
   @override
   void initState() {
+    // _currentDivision.stream.listen((event) {
+    //   print(event);
+    // });
+
     _autoScrollController = AutoScrollController(
         viewportBoundaryGetter: () =>
             Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
@@ -57,6 +68,7 @@ class _PlayerSliderState extends State<PlayerSlider>
       ..handleMiddleWidth = _handleMiddleWidth
       ..handleMiddleHeight = _handleMiddleHeight
       ..handleEdgeLinesWidth = _handleEdgeLinesWidth
+      ..handleMiddleHorizontalPadding = _handleMiddleHorizontalPadding
       ..handleBorderRadius = _handleBorderRadius;
 
     _animationController =
@@ -68,25 +80,24 @@ class _PlayerSliderState extends State<PlayerSlider>
       _seconds.add(Text(' $second ',
           style: TextStyle(color: Colors.white, fontSize: 16.0)));
     }
-    //
-    // _tapOn.addListener(() {
-    //   if (_tapOn.value == true) {
-    //     _timer =
-    //         Timer.periodic(const Duration(milliseconds: 5), (Timer t)  {
-    //       double _futureTimeLinePosition = _timeLinePosition + _velocityValue;
-    //
-    //       if (_futureTimeLinePosition >= 0.0 &&
-    //           _futureTimeLinePosition <= 1.0) {
-    //         _timeLinePosition = _futureTimeLinePosition;
-    //
-    //          _autoScrollController.scrollToIndex(
-    //             (_timeLinePosition * 100).toInt(),
-    //             preferPosition: AutoScrollPosition.middle);
-    //       }
-    //     });
-    //   } else
-    //     _timer.cancel();
-    // });
+
+    _tapOn.addListener(() {
+      if (_tapOn.value == true) {
+        _timer = Timer.periodic(const Duration(milliseconds: 100), (Timer t) {
+          _timeLinePosition += _velocityValue;
+          if (_timeLinePosition >= 0.0 &&
+              _timeLinePosition <= 1.0 &&
+              _velocityValue != 0.0) {
+            _autoScrollController.scrollToIndex(
+                (_timeLinePosition * 200).toInt(),
+                preferPosition: AutoScrollPosition.middle,
+                duration: Duration(milliseconds: 100));
+            _currentDivision = (_timeLinePosition * 200).toInt();
+          }
+        });
+      } else
+        _timer.cancel();
+    });
 
     // _tapOn.addListener(() {
     //   if (_tapOn.value == true) {
@@ -115,19 +126,23 @@ class _PlayerSliderState extends State<PlayerSlider>
                 // color: Colors.teal,
                 height: _handleHeight + _handleMiddlePadding,
                 child: Stack(children: [
-                  Container(
-                      width: wholeWidgetWidth,
-                      height: _handleHeight + _handleMiddlePadding,
-                      child: ListView(
-                          controller: _autoScrollController,
-                          scrollDirection: Axis.horizontal,
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          children: <Widget>[
-                            SizedBox(width: wholeWidgetWidth / 2 - 25),
-                            ...dragTargetTrack(200),
-                            SizedBox(width: wholeWidgetWidth / 2 - 40)
-                          ])),
+                  Align(
+                      alignment: Alignment.center,
+                      child: Container(
+                          // color: Colors.purple,
+                          width: wholeWidgetWidth,
+                          // height: 50.0,
+                          // height: _handleHeight + _handleMiddlePadding,
+                          child: ListView(
+                              controller: _autoScrollController,
+                              scrollDirection: Axis.horizontal,
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              children: <Widget>[
+                                SizedBox(width: wholeWidgetWidth / 2 - 25),
+                                ...dragTargetTrack(200),
+                                SizedBox(width: wholeWidgetWidth / 2 - 10)
+                              ]))),
                   Align(
                       alignment: Alignment.center,
                       child: dragAndDrop.Draggable<List>(
@@ -137,12 +152,15 @@ class _PlayerSliderState extends State<PlayerSlider>
                             _tapOn.value = true;
                             _valueBeforeScrolling = 0.0;
 
+                            _divisionBefore = _currentDivision;
+
                             setState(() {
                               _handleMiddleHeight =
                                   _handleHeight / 3 + _handleMiddlePadding;
                               _handleMiddleWidth = _handleEdgeLinesWidth;
                               _handleBorderRadius = BorderRadius.circular(0.0);
-
+                              _handleMiddleHorizontalPadding =
+                                  _handleMiddleWidth;
                               _isScrolling = true;
                             });
 
@@ -150,6 +168,8 @@ class _PlayerSliderState extends State<PlayerSlider>
                               ..handleHeight = _handleHeight
                               ..handleMiddleWidth = _handleMiddleWidth
                               ..handleMiddleHeight = _handleMiddleHeight
+                              ..handleMiddleHorizontalPadding =
+                                  _handleMiddleHorizontalPadding
                               ..handleEdgeLinesWidth = _handleEdgeLinesWidth
                               ..handleBorderRadius = _handleBorderRadius;
                           },
@@ -161,7 +181,7 @@ class _PlayerSliderState extends State<PlayerSlider>
                               _handleMiddleHeight = _handleHeight / 3;
                               _handleMiddleWidth = _handleDefaultWidth;
                               _handleBorderRadius = BorderRadius.circular(12.0);
-
+                              _handleMiddleHorizontalPadding = 0.0;
                               _isScrolling = false;
                             });
 
@@ -169,8 +189,14 @@ class _PlayerSliderState extends State<PlayerSlider>
                               ..handleHeight = _handleHeight
                               ..handleMiddleWidth = _handleMiddleWidth
                               ..handleMiddleHeight = _handleMiddleHeight
+                              ..handleMiddleHorizontalPadding =
+                                  _handleMiddleHorizontalPadding
                               ..handleEdgeLinesWidth = _handleEdgeLinesWidth
                               ..handleBorderRadius = _handleBorderRadius;
+
+                            _autoScrollController.scrollToIndex(
+                                (_currentDivision).toInt(),
+                                preferPosition: AutoScrollPosition.middle);
                           },
                           onDragUpdate: (position) {
                             double _sliderMiddlePosition =
@@ -180,20 +206,25 @@ class _PlayerSliderState extends State<PlayerSlider>
                             _currentSliderValue = position.dx /
                                     (_sliderMiddlePosition +
                                         lengthToBoundFromCenter) -
-                                0.5;
+                                _sideSliderValue;
 
                             double _valueDifference =
                                 -(_valueBeforeScrolling - _currentSliderValue);
 
-                            double _futureVelocityValue =
-                                (_currentSliderValue.abs() - _sideSliderBound) /
-                                    (_sideSliderValue - _sideSliderBound) *
-                                    _maxVelocity;
+                            // double _futureVelocityValue =
+                            //     (_currentSliderValue.abs() - _sideSliderBound) /
+                            //         (_sideSliderValue - _sideSliderBound) *
+                            //         _maxVelocity;
+                            // double _futureVelocityValue = (_sideSliderValue - _sideSliderBound)
+                            // print(_futureVelocityValue);
+                            // print(_valueDifference);
+                            // print(_sideSliderBound);
 
                             if (_valueDifference >= _sideSliderBound) {
-                              _velocityValue = _futureVelocityValue;
+                              _velocityValue = _maxVelocity;
                             } else if (_valueDifference <= -_sideSliderBound) {
-                              _velocityValue = -_futureVelocityValue;
+                              _velocityValue = -_maxVelocity;
+                              // _maxVelocity = -0.05;
                             } else {
                               _velocityValue = 0.0;
                             }
@@ -202,16 +233,16 @@ class _PlayerSliderState extends State<PlayerSlider>
                               height: _handleHeight + _handleMiddlePadding,
                               child:
                                   _isScrolling ? Container() : _handleWidget),
-                          child: _isScrolling ? Container() : _handleWidget)),
+                          child: _isScrolling ? Container() : _handleWidget))
                 ]))));
   }
 
-  final Color _trackColor = Colors.orange;
-  final double _maxLineHeight = 40.0;
-  final double _thickness = 2.5;
-  final double _divisionLength = 40.0;
+  final Color _trackColor = Color.fromRGBO(52, 52, 52, 1);
+  final double _maxLineHeight = 20.0;
+  final double _thickness = 2.2;
+  final double _divisionLength = 10.0;
 
-  double get _minLineHeight => _maxLineHeight / 2;
+  double get _minLineHeight => _maxLineHeight / 2.5;
 
   List dragTargetTrack(int divisionNumber) {
     List divisions = [];
@@ -219,46 +250,103 @@ class _PlayerSliderState extends State<PlayerSlider>
       divisions.add(_wrapScrollTag(
           index: division,
           child: dragAndDrop.DragTargetInterlayer<List>(
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Container(
-                  // color: Colors.yellow,
-                  height: _maxLineHeight,
-                  child: Stack(children: [
-                    Align(
-                        alignment: Alignment.bottomLeft,
-                        child: Container(
-                            width: _thickness,
-                            height: division % 10 == 0
-                                ? _maxLineHeight
-                                : _minLineHeight,
-                            color: _trackColor)),
-                    Align(
-                        alignment: Alignment.bottomLeft,
-                        child: Container(
-                            width: _divisionLength,
-                            height: _thickness,
-                            color: _trackColor))
-                  ])),
-              SizedBox(height: 12),
-              Text(division % 10 == 0 ? division.toString() : '',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18))
-            ]),
+            child: Center(
+                child: Container(
+                    // color: Colors.yellow,
+                    height: _maxLineHeight,
+                    child: Padding(
+                        padding: EdgeInsets.only(bottom: _maxLineHeight / 3),
+                        child: Stack(overflow: Overflow.visible, children: [
+                          Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Container(
+                                  width: _thickness,
+                                  height: division % 10 == 0
+                                      ? _maxLineHeight
+                                      : _minLineHeight,
+                                  color: _trackColor)),
+                          Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Container(
+                                  width: _divisionLength,
+                                  height: _thickness,
+                                  color: _trackColor)),
+                          Positioned(
+                              top: _maxLineHeight + 1,
+                              right: (division > -10 && division < 10)
+                                  ? 3
+                                  : (division >= 10 && division < 100)
+                                      ? -1.5
+                                      : -6.0,
+                              child: Text(
+                                  division % 10 == 0 ? division.toString() : '',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18)))
+                        ])))),
             onWillAccept: (d) {
+              // _currentDivision.add(division);
+              _currentDivision = division;
               // print(division);
-              _autoScrollController.scrollToIndex(division,
-                  preferPosition: AutoScrollPosition.middle);
+              // _autoScrollController.scrollToIndex(division,
+              //     preferPosition: AutoScrollPosition.middle);
               return true;
             },
-            // onAccept: (d) => print("accept "),
+            onAccept: (d) {},
+
             // onLeave: (d) => print("leave")
           )));
     }
     return divisions;
   }
+
+  // List dragTargetTrack(int divisionNumber) {
+  //   List divisions = [];
+  //   for (int division = 0; division <= divisionNumber; division++) {
+  //     divisions.add(_wrapScrollTag(
+  //         index: division,
+  //         child: dragAndDrop.DragTargetInterlayer<List>(
+  //           child:
+  //               Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+  //             Container(
+  //                 // color: Colors.yellow,
+  //                 height: _maxLineHeight,
+  //                 child: Stack(children: [
+  //                   Align(
+  //                       alignment: Alignment.bottomLeft,
+  //                       child: Container(
+  //                           width: _thickness,
+  //                           height: division % 10 == 0
+  //                               ? _maxLineHeight
+  //                               : _minLineHeight,
+  //                           color: _trackColor)),
+  //                   Align(
+  //                       alignment: Alignment.bottomLeft,
+  //                       child: Container(
+  //                           width: _divisionLength,
+  //                           height: _thickness,
+  //                           color: _trackColor))
+  //                 ])),
+  //             SizedBox(height: 12),
+  //             Text(division % 10 == 0 ? division.toString() : '',
+  //                 style: TextStyle(
+  //                     color: Colors.white,
+  //                     fontWeight: FontWeight.bold,
+  //                     fontSize: 18))
+  //           ]),
+  //           onWillAccept: (d) {
+  //             // print(division);
+  //             _autoScrollController.scrollToIndex(division,
+  //                 preferPosition: AutoScrollPosition.middle);
+  //             return true;
+  //           },
+  //           // onAccept: (d) => print("accept "),
+  //           // onLeave: (d) => print("leave")
+  //         )));
+  //   }
+  //   return divisions;
+  // }
 
   Widget _wrapScrollTag({int index, Widget child}) => AutoScrollTag(
       key: ValueKey(index),
@@ -272,7 +360,9 @@ class HandleWidget extends StatefulWidget {
   double handleHeight;
   double handleMiddleWidth;
   double handleMiddleHeight;
+  double handleMiddleHorizontalPadding;
   double handleEdgeLinesWidth;
+
   BorderRadius handleBorderRadius;
 
   @override
@@ -282,25 +372,29 @@ class HandleWidget extends StatefulWidget {
 class _HandleWidgetState extends State<HandleWidget> {
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      Container(
-          width: widget.handleEdgeLinesWidth,
-          height: widget.handleHeight / 3,
-          color: Colors.white),
-      Spacer(),
-      AnimatedContainer(
-          width: widget.handleMiddleWidth,
-          height: widget.handleMiddleHeight,
-          decoration: BoxDecoration(
-              color: Colors.white, borderRadius: widget.handleBorderRadius),
-          duration: Duration(milliseconds: 300),
-          curve: Curves.fastOutSlowIn),
-      Spacer(),
-      Container(
-          width: widget.handleEdgeLinesWidth,
-          height: widget.handleHeight / 3,
-          color: Colors.white)
-    ]);
+    return Padding(
+      padding: EdgeInsets.symmetric(
+          horizontal: widget.handleMiddleHorizontalPadding),
+      child: Column(children: [
+        Container(
+            width: widget.handleEdgeLinesWidth,
+            height: widget.handleHeight / 3,
+            color: Colors.white),
+        Spacer(),
+        AnimatedContainer(
+            width: widget.handleMiddleWidth,
+            height: widget.handleMiddleHeight,
+            decoration: BoxDecoration(
+                color: Colors.white, borderRadius: widget.handleBorderRadius),
+            duration: Duration(milliseconds: 300),
+            curve: Curves.fastOutSlowIn),
+        Spacer(),
+        Container(
+            width: widget.handleEdgeLinesWidth,
+            height: widget.handleHeight / 3,
+            color: Colors.white)
+      ]),
+    );
   }
 }
 

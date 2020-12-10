@@ -9,14 +9,15 @@ class PlayerWidget extends StatefulWidget {
 
 double wholeWidgetHeight;
 double wholeWidgetWidth;
-const double contentPadding = 16.0;
+const double contentPadding = 14.0;
 
 class _PlayerWidgetState extends State<PlayerWidget> {
   static const Color darkBackground = Color.fromRGBO(18, 18, 18, 1);
 
   @override
   Widget build(BuildContext context) {
-    wholeWidgetHeight = MediaQuery.of(context).size.height / 3;
+    // wholeWidgetHeight = MediaQuery.of(context).size.height / 2.5;
+    wholeWidgetHeight = 275;
     wholeWidgetWidth = MediaQuery.of(context).size.width;
     return Scaffold(backgroundColor: Colors.black, body: Center(child: body()));
   }
@@ -32,17 +33,18 @@ class _PlayerWidgetState extends State<PlayerWidget> {
             child: Padding(
                 padding: const EdgeInsets.all(contentPadding),
                 child: Column(children: [
-                  // topSection(),
+                  topSection(),
                   PlayerSlider(),
                   // middleSection(),
                   // Spacer(),
-                  // bottomSection()
+                  bottomSection()
                 ]))));
   }
 
   Widget topSection() {
     return SizedBox(
-        height: wholeWidgetHeight * 0.481,
+        // height: wholeWidgetHeight * 0.481,
+        height: 120,
         width: double.infinity,
         child: Container(
             decoration: BoxDecoration(
@@ -69,7 +71,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                                 height: 20.0,
                                 child: Marquee(
                                     text:
-                                        'the Theater back to the Theater back to the Theater back to ',
+                                        'Will Theater Come Back? What Will It Look Like When It Does? ',
                                     style: TextStyle(
                                         color: Colors.white, fontSize: 18.0))),
                             // Text('the Theater back to',
@@ -117,7 +119,8 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   Widget bottomSection() {
     return SizedBox(
-        height: wholeWidgetHeight * 0.177,
+        // height: wholeWidgetHeight * 0.177,
+        height: 40,
         width: double.infinity,
         child: Row(children: [
           ClipOval(
