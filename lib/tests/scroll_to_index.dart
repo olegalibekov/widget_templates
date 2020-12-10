@@ -6,6 +6,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:widget_templates/modified_flutter_widgets/drag_and_drop.dart';
 import 'package:widget_templates/templates/player_slider.dart';
 
 void main() => runApp(MyApp());
@@ -41,6 +42,13 @@ class _MyHomePageState extends State<MyHomePage> {
   AutoScrollController controller;
   List<List<int>> randomList;
 
+  final double _maxLineHeight = 50.0;
+  final double _thickness = 5.0;
+  final double _divisionLength = 30.0;
+
+  double get _minLineHeight => _maxLineHeight / 2;
+  List divisions = [];
+
   @override
   void initState() {
     super.initState();
@@ -48,8 +56,45 @@ class _MyHomePageState extends State<MyHomePage> {
         viewportBoundaryGetter: () =>
             Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
         axis: scrollDirection);
-    randomList = List.generate(maxCount,
-        (index) => <int>[index, (1000 * random.nextDouble()).toInt()]);
+    // randomList = List.generate(maxCount,
+    //     (index) => <int>[index, (1000 * random.nextDouble()).toInt()]);
+
+    for (int division = 0; division <= 100; division++)
+      divisions.add(_wrapScrollTag(
+          index: division,
+          child: DragTargetInterlayer<List>(
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                        // color: Colors.yellow,
+                        height: _maxLineHeight,
+                        child: Stack(children: [
+                          Align(
+                              alignment: Alignment.bottomLeft,
+                              child: Container(
+                                  width: _thickness,
+                                  height: division % 10 == 0
+                                      ? _maxLineHeight
+                                      : _minLineHeight,
+                                  color: Colors.orange)),
+                          Align(
+                              alignment: Alignment.bottomLeft,
+                              child: Container(
+                                  width: _divisionLength,
+                                  height: _thickness,
+                                  color: Colors.orange))
+                        ])),
+                    Text(division.toString(),
+                        style: TextStyle(color: Colors.black))
+                  ]),
+              onWillAccept: (d) {
+                print(division);
+                return true;
+              },
+              onAccept: (d) => print("accept "),
+              onLeave: (d) => print("leave"))));
   }
 
   @override
@@ -61,7 +106,8 @@ class _MyHomePageState extends State<MyHomePage> {
       body: ListView(
         scrollDirection: scrollDirection,
         controller: controller,
-        children: [DragTargetTrack(100)],
+        children: [...divisions],
+        // children: [DragTargetTrack(100)],
         // children: randomList.map<Widget>((data) {
         //   return Padding(
         //     padding: EdgeInsets.all(8),
