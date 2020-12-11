@@ -632,7 +632,6 @@ class _DragAvatar<T> extends Drag {
   }
 
   Future<void> finishDrag(_DragEndKind endKind, [Velocity velocity]) async {
-    print('finishDrag');
     duration = animationDuration;
     _entry.markNeedsBuild();
     await Future.delayed(duration);
@@ -676,10 +675,11 @@ class _DragAvatar<T> extends Drag {
           : _lastOffset.dy - overlayTopLeft.dy,
       duration: duration,
       child: IgnorePointer(
-        child: AnimatedOpacity(
-            duration: duration,
-            opacity: duration != Duration.zero ? 0 : 1,
-            child: feedback),
+        child: feedback,
+        // child: AnimatedOpacity(
+        //     duration: duration,
+        //     opacity: duration != Duration.zero ? 0 : 1,
+        //     child: feedback),
         ignoringSemantics: ignoringFeedbackSemantics,
       ),
     );

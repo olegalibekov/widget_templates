@@ -181,14 +181,14 @@ class _PlayerSliderState extends State<PlayerSlider>
                               ..handleEdgeLinesWidth = _handleEdgeLinesWidth
                               ..handleBorderRadius = _handleBorderRadius;
                           },
-                          onDragCompleted: () {
-                            print('onDragCompleted');
-                          },
-                          onDraggableCanceled: (velocity, offset) {
-                            print('onDraggableCanceled');
-                          },
+                          // onDragCompleted: () {
+                          //   print('onDragCompleted');
+                          // },
+                          // onDraggableCanceled: (velocity, offset) {
+                          //   print('onDraggableCanceled');
+                          // },
                           onDragEnd: (details) {
-                            print('onDragEnd');
+                            // print('onDragEnd');
                             _tapOn.value = false;
                             _velocityValue = 0.0;
 
@@ -311,13 +311,13 @@ class _PlayerSliderState extends State<PlayerSlider>
               //     preferPosition: AutoScrollPosition.middle);
               return true;
             },
-            onLeave: (object) {
-              // print('onLeave');
-            },
-
-            onAccept: (d) {
-              print('Access');
-            },
+            // onLeave: (object) {
+            //   // print('onLeave');
+            // },
+            //
+            // onAccept: (d) {
+            //   print('Access');
+            // },
             // onLeave: (d) => print("leave")
           )));
     }
