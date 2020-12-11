@@ -31,9 +31,8 @@ class _PlayerSliderState extends State<PlayerSlider>
   double _valueBeforeScrolling;
 
   final double _handleHeight = 70.0;
-  final double _handleMiddlePadding = 4.0;
+  final double _handleMiddleVerticalPadding = 4.0;
   final double _handleDefaultWidth = 6.0;
-
   double _handleMiddleHorizontalPadding = 0.0;
   double _handleMiddleWidth = 6.0;
   double _handleMiddleHeight = 70.0 / 3;
@@ -53,13 +52,7 @@ class _PlayerSliderState extends State<PlayerSlider>
             Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
         axis: Axis.horizontal);
 
-    _handleWidget
-      ..handleHeight = _handleHeight
-      ..handleMiddleWidth = _handleMiddleWidth
-      ..handleMiddleHeight = _handleMiddleHeight
-      ..handleEdgeLinesWidth = _handleEdgeLinesWidth
-      ..handleMiddleHorizontalPadding = _handleMiddleHorizontalPadding
-      ..handleBorderRadius = _handleBorderRadius;
+    updateHandleWidget();
 
     _tapOn.addListener(() {
       if (_tapOn.value == true) {
@@ -93,7 +86,7 @@ class _PlayerSliderState extends State<PlayerSlider>
     return Expanded(
         child: Center(
             child: SizedBox(
-                height: _handleHeight + _handleMiddlePadding,
+                height: _handleHeight + _handleMiddleVerticalPadding,
                 child: Stack(children: [
                   Align(
                       alignment: Alignment.center,
@@ -118,8 +111,8 @@ class _PlayerSliderState extends State<PlayerSlider>
                             _valueBeforeScrolling = 0.0;
 
                             setState(() {
-                              _handleMiddleHeight =
-                                  _handleHeight / 3 + _handleMiddlePadding;
+                              _handleMiddleHeight = _handleHeight / 3 +
+                                  _handleMiddleVerticalPadding;
                               _handleMiddleWidth = _handleEdgeLinesWidth;
                               _handleBorderRadius = BorderRadius.circular(0.0);
                               _handleMiddleHorizontalPadding =
@@ -141,7 +134,8 @@ class _PlayerSliderState extends State<PlayerSlider>
 
                             updateHandleWidget();
 
-                            _timeLinePosition = _currentDivision / _durationInSeconds;
+                            _timeLinePosition =
+                                _currentDivision / _durationInSeconds;
 
                             _autoScrollController.scrollToIndex(
                                 (_currentDivision).toInt(),
@@ -170,7 +164,8 @@ class _PlayerSliderState extends State<PlayerSlider>
                             }
                           },
                           feedback: SizedBox(
-                              height: _handleHeight + _handleMiddlePadding,
+                              height:
+                                  _handleHeight + _handleMiddleVerticalPadding,
                               child:
                                   _tapOn.value ? Container() : _handleWidget),
                           child: _tapOn.value ? Container() : _handleWidget))
@@ -245,7 +240,7 @@ class _PlayerSliderState extends State<PlayerSlider>
 }
 
 // ignore: must_be_immutable
-class HandleWidget extends StatelessWidget {
+class HandleWidget extends StatefulWidget {
   double handleHeight;
   double handleMiddleWidth;
   double handleMiddleHeight;
@@ -255,61 +250,35 @@ class HandleWidget extends StatelessWidget {
   BorderRadius handleBorderRadius;
 
   @override
+  _HandleWidgetState createState() => _HandleWidgetState();
+}
+
+class _HandleWidgetState extends State<HandleWidget> {
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(
-          horizontal: handleMiddleHorizontalPadding),
+          horizontal: widget.handleMiddleHorizontalPadding),
       child: Column(children: [
         Container(
-            width: handleEdgeLinesWidth,
-            height: handleHeight / 3,
+            width: widget.handleEdgeLinesWidth,
+            height: widget.handleHeight / 3,
             color: Colors.white),
         Spacer(),
         AnimatedContainer(
-            width: handleMiddleWidth,
-            height: handleMiddleHeight,
-            decoration: BoxDecoration(
-                color: Colors.white, borderRadius: handleBorderRadius),
-            duration: Duration(milliseconds: 300),
-            curve: Curves.fastOutSlowIn),
+          width: widget.handleMiddleWidth,
+          height: widget.handleMiddleHeight,
+          decoration: BoxDecoration(
+              color: Colors.white, borderRadius: widget.handleBorderRadius),
+          duration: Duration(milliseconds: 2000),
+          // curve: Curves.fastOutSlowIn
+        ),
         Spacer(),
         Container(
-            width: handleEdgeLinesWidth,
-            height: handleHeight / 3,
+            width: widget.handleEdgeLinesWidth,
+            height: widget.handleHeight / 3,
             color: Colors.white)
       ]),
     );
   }
-
-  // @override
-  // _HandleWidgetState createState() => _HandleWidgetState();
 }
-
-// class _HandleWidgetState extends State<HandleWidget> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: EdgeInsets.symmetric(
-//           horizontal: widget.handleMiddleHorizontalPadding),
-//       child: Column(children: [
-//         Container(
-//             width: widget.handleEdgeLinesWidth,
-//             height: widget.handleHeight / 3,
-//             color: Colors.white),
-//         Spacer(),
-//         AnimatedContainer(
-//             width: widget.handleMiddleWidth,
-//             height: widget.handleMiddleHeight,
-//             decoration: BoxDecoration(
-//                 color: Colors.white, borderRadius: widget.handleBorderRadius),
-//             duration: Duration(milliseconds: 300),
-//             curve: Curves.fastOutSlowIn),
-//         Spacer(),
-//         Container(
-//             width: widget.handleEdgeLinesWidth,
-//             height: widget.handleHeight / 3,
-//             color: Colors.white)
-//       ]),
-//     );
-//   }
-// }
