@@ -632,6 +632,7 @@ class _DragAvatar<T> extends Drag {
   }
 
   Future<void> finishDrag(_DragEndKind endKind, [Velocity velocity]) async {
+    print('finishDrag');
     duration = animationDuration;
     _entry.markNeedsBuild();
     await Future.delayed(duration);
@@ -652,7 +653,7 @@ class _DragAvatar<T> extends Drag {
   }
 
   Duration duration = Duration.zero;
-  static const Duration animationDuration = const Duration(milliseconds: 300);
+  static const Duration animationDuration = const Duration(milliseconds: 0);
   bool _firstDraw = true;
   Offset _firstPosition;
 

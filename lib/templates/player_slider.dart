@@ -16,7 +16,7 @@ class _PlayerSliderState extends State<PlayerSlider>
     with TickerProviderStateMixin {
   final double _sideSliderValue = 0.5;
   final double _sideSliderBound = 0.48;
-  final double _maxVelocity = 0.01;
+  final double _maxVelocity = 0.006;
 
   AnimationController _animationController;
   CurvedAnimation _curvedAnimation;
@@ -51,7 +51,6 @@ class _PlayerSliderState extends State<PlayerSlider>
   int _currentDivision = 0;
   double _futureTimeLinePosition;
 
-
   @override
   void initState() {
     // _currentDivision.stream.listen((event) {
@@ -83,15 +82,24 @@ class _PlayerSliderState extends State<PlayerSlider>
 
     _tapOn.addListener(() {
       if (_tapOn.value == true) {
-        _timer = Timer.periodic(const Duration(milliseconds: 100), (Timer t) {
-          _timeLinePosition += _velocityValue;
-          if (_timeLinePosition >= 0.0 &&
-              _timeLinePosition <= 1.0 &&
+        _timer = Timer.periodic(const Duration(milliseconds: 40), (Timer t) {
+          double _futureTimeLinePosition = _timeLinePosition + _velocityValue;
+          // print(_timeLinePosition);
+
+          if (_futureTimeLinePosition >= 0.0 &&
+              _futureTimeLinePosition <= 1.0) {
+            _timeLinePosition = _futureTimeLinePosition;
+          }
+
+          if (_futureTimeLinePosition >= 0.0 &&
+              _futureTimeLinePosition <= 1.0 &&
               _velocityValue != 0.0) {
+            // _timeLinePosition = _futureTimeLinePosition;
+
             _autoScrollController.scrollToIndex(
                 (_timeLinePosition * 200).toInt(),
                 preferPosition: AutoScrollPosition.middle,
-                duration: Duration(milliseconds: 100));
+                duration: Duration(milliseconds: 1));
             _currentDivision = (_timeLinePosition * 200).toInt();
           }
         });
@@ -173,7 +181,14 @@ class _PlayerSliderState extends State<PlayerSlider>
                               ..handleEdgeLinesWidth = _handleEdgeLinesWidth
                               ..handleBorderRadius = _handleBorderRadius;
                           },
+                          onDragCompleted: () {
+                            print('onDragCompleted');
+                          },
+                          onDraggableCanceled: (velocity, offset) {
+                            print('onDraggableCanceled');
+                          },
                           onDragEnd: (details) {
+                            print('onDragEnd');
                             _tapOn.value = false;
                             _velocityValue = 0.0;
 
@@ -194,9 +209,12 @@ class _PlayerSliderState extends State<PlayerSlider>
                               ..handleEdgeLinesWidth = _handleEdgeLinesWidth
                               ..handleBorderRadius = _handleBorderRadius;
 
+                            _timeLinePosition = _currentDivision / 200;
+
                             _autoScrollController.scrollToIndex(
                                 (_currentDivision).toInt(),
-                                preferPosition: AutoScrollPosition.middle);
+                                preferPosition: AutoScrollPosition.middle,
+                                duration: Duration(milliseconds: 175));
                           },
                           onDragUpdate: (position) {
                             double _sliderMiddlePosition =
@@ -293,8 +311,13 @@ class _PlayerSliderState extends State<PlayerSlider>
               //     preferPosition: AutoScrollPosition.middle);
               return true;
             },
-            onAccept: (d) {},
+            onLeave: (object) {
+              // print('onLeave');
+            },
 
+            onAccept: (d) {
+              print('Access');
+            },
             // onLeave: (d) => print("leave")
           )));
     }
