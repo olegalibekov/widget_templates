@@ -43,14 +43,14 @@ class _PlayerSliderState extends State<PlayerSlider>
   AutoScrollController _autoScrollController;
   int _currentDivision = 0;
   Timer _timer;
-  int _durationInSeconds = 200;
+  final int _durationInSeconds = 200;
+  List _trackItems = [];
 
   @override
   void initState() {
-    _autoScrollController = AutoScrollController(
-        viewportBoundaryGetter: () =>
-            Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
-        axis: Axis.horizontal);
+    _autoScrollController = AutoScrollController(axis: Axis.horizontal);
+
+    _trackItems.addAll(dragTargetTrack(_durationInSeconds));
 
     updateHandleWidget();
 
@@ -58,9 +58,7 @@ class _PlayerSliderState extends State<PlayerSlider>
       if (_tapOn.value == true) {
         _timer = Timer.periodic(const Duration(milliseconds: 40), (Timer t) {
           double _futureTimeLinePosition = _timeLinePosition + _velocityValue;
-
-          if (_futureTimeLinePosition >= 0.0 &&
-              _futureTimeLinePosition <= 1.0) {
+          if (_timeLinePosition >= 0.0 && _timeLinePosition <= 1.0) {
             _timeLinePosition = _futureTimeLinePosition;
           }
 
@@ -98,9 +96,11 @@ class _PlayerSliderState extends State<PlayerSlider>
                               shrinkWrap: true,
                               physics: NeverScrollableScrollPhysics(),
                               children: <Widget>[
-                                SizedBox(width: wholeWidgetWidth / 2 - 25),
-                                ...dragTargetTrack(_durationInSeconds),
-                                SizedBox(width: wholeWidgetWidth / 2 - 10)
+                                // SizedBox(width: wholeWidgetWidth / 2 - 25),
+                                trackOnSide(wholeWidgetWidth / 2 - 25, true),
+                                ..._trackItems,
+                                trackOnSide(wholeWidgetWidth / 2 - 10, false),
+                                // SizedBox(width: wholeWidgetWidth / 2 - 10)
                               ]))),
                   Align(
                       alignment: Alignment.center,
@@ -184,6 +184,7 @@ class _PlayerSliderState extends State<PlayerSlider>
 
   List dragTargetTrack(int divisionNumber) {
     List divisions = [];
+
     for (int division = 0; division <= divisionNumber; division++) {
       divisions.add(_wrapScrollTag(
           index: division,
@@ -208,28 +209,63 @@ class _PlayerSliderState extends State<PlayerSlider>
                                     width: _divisionLength,
                                     height: _thickness,
                                     color: _trackColor)),
-                            Positioned(
-                                top: _maxLineHeight + 1,
-                                right: (division > -10 && division < 10)
-                                    ? 3
-                                    : (division >= 10 && division < 100)
-                                        ? -1.5
-                                        : -6.0,
-                                child: Text(
-                                    division % 10 == 0
-                                        ? division.toString()
-                                        : '',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18)))
+                            if (division % 10 == 0)
+                              Positioned(
+                                  top: _maxLineHeight + 1,
+                                  right: (division > -10 && division < 10)
+                                      ? 3
+                                      : (division >= 10 && division < 100)
+                                          ? -1.5
+                                          : -6.0,
+                                  child: Text(division.toString(),
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18)))
                           ])))),
               onWillAccept: (d) {
                 _currentDivision = division;
                 return true;
               })));
     }
+
     return divisions;
+  }
+
+  Widget trackOnSide(double trackOnSideWidth, bool leftSide) {
+    int divisionNumber = trackOnSideWidth ~/ _divisionLength;
+    return ShaderMask(
+      shaderCallback: (Rect bounds) => LinearGradient(
+        colors: [
+          Colors.white.withOpacity(leftSide ? 0 : 1),
+          Colors.white.withOpacity(leftSide ? 1 : 0)
+        ],
+      ).createShader(bounds),
+      child: Row(children: [
+        for (int division = divisionNumber; division > 0; division--)
+          Center(
+              child: SizedBox(
+                  height: _maxLineHeight,
+                  child: Padding(
+                      padding: EdgeInsets.only(bottom: _maxLineHeight / 3),
+                      child: Stack(children: [
+                        Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Container(
+                                width: _thickness,
+                                height: division % 10 == 0
+                                    ? _maxLineHeight
+                                    : _minLineHeight,
+                                color: _trackColor)),
+                        Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Container(
+                                width: _divisionLength,
+                                height: _thickness,
+                                color: _trackColor))
+                      ]))))
+      ]),
+    );
   }
 
   Widget _wrapScrollTag({int index, Widget child}) => AutoScrollTag(
@@ -257,28 +293,27 @@ class _HandleWidgetState extends State<HandleWidget> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-          horizontal: widget.handleMiddleHorizontalPadding),
-      child: Column(children: [
-        Container(
-            width: widget.handleEdgeLinesWidth,
-            height: widget.handleHeight / 3,
-            color: Colors.white),
-        Spacer(),
-        AnimatedContainer(
-          width: widget.handleMiddleWidth,
-          height: widget.handleMiddleHeight,
-          decoration: BoxDecoration(
-              color: Colors.white, borderRadius: widget.handleBorderRadius),
-          duration: Duration(milliseconds: 2000),
-          // curve: Curves.fastOutSlowIn
-        ),
-        Spacer(),
-        Container(
-            width: widget.handleEdgeLinesWidth,
-            height: widget.handleHeight / 3,
-            color: Colors.white)
-      ]),
-    );
+        padding: EdgeInsets.symmetric(
+            horizontal: widget.handleMiddleHorizontalPadding),
+        child: Column(children: [
+          Container(
+              width: widget.handleEdgeLinesWidth,
+              height: widget.handleHeight / 3,
+              color: Colors.white),
+          Spacer(),
+          AnimatedContainer(
+            width: widget.handleMiddleWidth,
+            height: widget.handleMiddleHeight,
+            decoration: BoxDecoration(
+                color: Colors.white, borderRadius: widget.handleBorderRadius),
+            duration: Duration(milliseconds: 2000),
+            // curve: Curves.fastOutSlowIn
+          ),
+          Spacer(),
+          Container(
+              width: widget.handleEdgeLinesWidth,
+              height: widget.handleHeight / 3,
+              color: Colors.white)
+        ]));
   }
 }
