@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:widget_templates/templates/player_widget.dart';
@@ -43,7 +44,7 @@ class _PlayerSliderState extends State<PlayerSlider>
   AutoScrollController _autoScrollController;
   int _currentDivision = 0;
   Timer _timer;
-  final int _durationInSeconds = 200;
+  final int _durationInSeconds = 1;
   List _trackItems = [];
 
   @override
@@ -65,11 +66,12 @@ class _PlayerSliderState extends State<PlayerSlider>
           if (_futureTimeLinePosition >= 0.0 &&
               _futureTimeLinePosition <= 1.0 &&
               _velocityValue != 0.0) {
-            _autoScrollController.scrollToIndex(
-                (_timeLinePosition * _durationInSeconds).toInt(),
+            _currentDivision =
+                (_timeLinePosition * _durationInSeconds).toInt() + 1;
+            print(_currentDivision);
+            _autoScrollController.scrollToIndex(_currentDivision,
                 preferPosition: AutoScrollPosition.middle,
                 duration: Duration(milliseconds: 1));
-            _currentDivision = (_timeLinePosition * _durationInSeconds).toInt();
           }
         });
       } else
@@ -236,6 +238,8 @@ class _PlayerSliderState extends State<PlayerSlider>
     int divisionNumber = trackOnSideWidth ~/ _divisionLength;
     return ShaderMask(
       shaderCallback: (Rect bounds) => LinearGradient(
+        // begin: Alignment.centerRight,
+        stops: [0.3, 0.7],
         colors: [
           Colors.white.withOpacity(leftSide ? 0 : 1),
           Colors.white.withOpacity(leftSide ? 1 : 0)
