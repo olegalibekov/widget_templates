@@ -14,6 +14,13 @@ const double contentPadding = 14.0;
 class _PlayerWidgetState extends State<PlayerWidget> {
   static const Color darkBackground = Color.fromRGBO(18, 18, 18, 1);
 
+  // double _trackPositionInFractions;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     // wholeWidgetHeight = MediaQuery.of(context).size.height / 2.5;
