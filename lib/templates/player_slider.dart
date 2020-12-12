@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:widget_templates/templates/player_widget.dart';
 import 'package:widget_templates/modified_flutter_widgets/drag_and_drop.dart'
-    as dragAndDrop;
+as dragAndDrop;
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'dart:async';
 
@@ -44,7 +44,7 @@ class _PlayerSliderState extends State<PlayerSlider>
   AutoScrollController _autoScrollController;
   int _currentDivision = 0;
   Timer _timer;
-  final int _durationInSeconds = 1;
+  final int _durationInSeconds = 0;
   List _trackItems = [];
 
   @override
@@ -66,8 +66,7 @@ class _PlayerSliderState extends State<PlayerSlider>
           if (_futureTimeLinePosition >= 0.0 &&
               _futureTimeLinePosition <= 1.0 &&
               _velocityValue != 0.0) {
-            _currentDivision =
-                (_timeLinePosition * _durationInSeconds).toInt() + 1;
+            _currentDivision = (_timeLinePosition * _durationInSeconds).toInt();
             print(_currentDivision);
             _autoScrollController.scrollToIndex(_currentDivision,
                 preferPosition: AutoScrollPosition.middle,
@@ -150,12 +149,12 @@ class _PlayerSliderState extends State<PlayerSlider>
                             double lengthToBoundFromCenter =
                                 _sliderMiddlePosition * 0.92;
                             _currentSliderValue = position.dx /
-                                    (_sliderMiddlePosition +
-                                        lengthToBoundFromCenter) -
+                                (_sliderMiddlePosition +
+                                    lengthToBoundFromCenter) -
                                 _sideSliderValue;
 
                             double _valueDifference =
-                                -(_valueBeforeScrolling - _currentSliderValue);
+                            -(_valueBeforeScrolling - _currentSliderValue);
 
                             if (_valueDifference >= _sideSliderBound) {
                               _velocityValue = _maxVelocity;
@@ -167,9 +166,9 @@ class _PlayerSliderState extends State<PlayerSlider>
                           },
                           feedback: SizedBox(
                               height:
-                                  _handleHeight + _handleMiddleVerticalPadding,
+                              _handleHeight + _handleMiddleVerticalPadding,
                               child:
-                                  _tapOn.value ? Container() : _handleWidget),
+                              _tapOn.value ? Container() : _handleWidget),
                           child: _tapOn.value ? Container() : _handleWidget))
                 ]))));
   }
@@ -217,8 +216,8 @@ class _PlayerSliderState extends State<PlayerSlider>
                                   right: (division > -10 && division < 10)
                                       ? 3
                                       : (division >= 10 && division < 100)
-                                          ? -1.5
-                                          : -6.0,
+                                      ? -1.5
+                                      : -6.0,
                                   child: Text(division.toString(),
                                       style: TextStyle(
                                           color: Colors.white,
@@ -237,14 +236,15 @@ class _PlayerSliderState extends State<PlayerSlider>
   Widget trackOnSide(double trackOnSideWidth, bool leftSide) {
     int divisionNumber = trackOnSideWidth ~/ _divisionLength;
     return ShaderMask(
-      shaderCallback: (Rect bounds) => LinearGradient(
-        // begin: Alignment.centerRight,
-        stops: [0.3, 0.7],
-        colors: [
-          Colors.white.withOpacity(leftSide ? 0 : 1),
-          Colors.white.withOpacity(leftSide ? 1 : 0)
-        ],
-      ).createShader(bounds),
+      shaderCallback: (Rect bounds) =>
+          LinearGradient(
+            // begin: Alignment.centerRight,
+            stops: [0.3, 0.7],
+            colors: [
+              Colors.white.withOpacity(leftSide ? 0 : 1),
+              Colors.white.withOpacity(leftSide ? 1 : 0)
+            ],
+          ).createShader(bounds),
       child: Row(children: [
         for (int division = divisionNumber; division > 0; division--)
           Center(
@@ -272,11 +272,12 @@ class _PlayerSliderState extends State<PlayerSlider>
     );
   }
 
-  Widget _wrapScrollTag({int index, Widget child}) => AutoScrollTag(
-      key: ValueKey(index),
-      controller: _autoScrollController,
-      index: index,
-      child: child);
+  Widget _wrapScrollTag({int index, Widget child}) =>
+      AutoScrollTag(
+          key: ValueKey(index),
+          controller: _autoScrollController,
+          index: index,
+          child: child);
 }
 
 // ignore: must_be_immutable
